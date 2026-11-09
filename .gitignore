@@ -183,4 +183,24 @@ baselines/curve_data_to_plot.npy
 baselines/old_numeric_table.txt
 
 extract
-resources
+
+# 작업 중 만든 임시 스크립트 모음(업로드 제외)
+_archive_scripts/
+
+# --- resources: 기본은 무시, 우리가 쓰는 자산만 포함 ---
+resources/*
+!resources/checkpoints/
+!resources/focusfiles/
+# 체크포인트: 메인 6개만, periodic 저장본은 제외(용량)
+resources/checkpoints/*
+!resources/checkpoints/Pong_seed0_reward-env_oc/
+!resources/checkpoints/Pong_seed16_reward-env_oc/
+!resources/checkpoints/Pong_seed32_reward-env_oc/
+!resources/checkpoints/Pong_seed0_reward-env_oc_pruned-external/
+!resources/checkpoints/Pong_seed16_reward-env_oc_pruned-external/
+!resources/checkpoints/Pong_seed32_reward-env_oc_pruned-external/
+resources/checkpoints/*/training_checkpoints/
+# focus 파일(우리가 쓰는 것만)
+resources/focusfiles/*
+!resources/focusfiles/table4_pong.yaml
+!resources/focusfiles/pruned_pong.yaml

@@ -150,7 +150,7 @@ def main():
 
 
     # Original SB3 Model Eval and Trainset Generation
-    model = PPO.load(model_path, device="cuda:0")
+    model = PPO.load(model_path, device="cpu")  # [CHANGE #3] GPU 없음 → cpu (원본 "cuda:0")
     sb3_model_wrapped = SB3Model(model=model)
     dummy_vecenv = DummyVecEnv([lambda :  env])
     vec_env = VecNormalize.load(vecnorm_path, dummy_vecenv)

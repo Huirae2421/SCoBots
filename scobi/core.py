@@ -32,6 +32,16 @@ class Environment(Env):
         # use the initialized slots from OC_Atari (ensures that there are no NoObjects)
         init_objects = self.oc_env._slots
         max_obj_dict = self.oc_env.max_objects_per_cat
+        # [CHANGE #2] optional object pruning via env var SCOBI_EXCLUDE_OBJECTS
+        # (comma-separated category names, e.g. "Enemy"). Inert unless set.
+        # Needed to reproduce the paper's "remove enemy from considered objects"
+        # since raw object positions come from OCAtari, not the focus file.
+        import os as _os
+        _excl_raw = _os.environ.get("SCOBI_EXCLUDE_OBJECTS", "")
+        if _excl_raw.strip():
+            _excl = set(x.strip() for x in _excl_raw.split(",") if x.strip())
+            init_objects = [o for o in init_objects if o.category not in _excl]
+            max_obj_dict = {k: v for k, v in max_obj_dict.items() if k not in _excl}
         self.did_reset = False
         self.focus = Focus(env_name, reward, hide_properties, focus_dir, focus_file, init_objects, max_obj_dict, actions, refresh_yaml, self.logger)
         self.focus_file = self.focus.FOCUSFILEPATH

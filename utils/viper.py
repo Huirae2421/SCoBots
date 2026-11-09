@@ -12,7 +12,7 @@ from stable_baselines3 import PPO
 from tqdm import tqdm
 
 # from viperoc repository
-cuda = torch.device("cuda")
+cuda = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class LogProbQ:
     def __init__(self, stochastic_pol: PPO, env: Env):
         self.pol = stochastic_pol
