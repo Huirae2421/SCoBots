@@ -27,10 +27,29 @@ B_curves = np.stack([load_curve(c)[1] for c in B_CKPTS])
 plt.figure(figsize=(8, 5))
 
 # ===== TODO 1 =====
-# A_curves, B_curves 각각에 대해 시드 축(axis=0)으로 평균과 표준편차를 구하고,
-# plt.plot 으로 평균 곡선을, plt.fill_between 으로 평균±표준편차 밴드를 그려 주세요.
+"""
+위에서 불러온 값들이 저장되어 있습니다.
+  t        : 평가한 타임스텝 (x축)
+  A_curves : A(적 포함) 시드 3개의 평가 보상, 모양 (3, 평가횟수)
+  B_curves : B(적 제거) 시드 3개의 평가 보상, 모양 (3, 평가횟수)
+
+시드 축(axis=0)으로 평균과 표준편차를 구해서
+plt.plot 으로 평균 곡선을, plt.fill_between 으로 평균±표준편차 밴드를 그려 주세요.
+ex)
+A_mean = A_curves.mean(axis=0)
+A_std = A_curves.std(axis=0)
+plt.plot(t, A_mean, label="A (with enemy)")
+plt.fill_between(t, A_mean - A_std, A_mean + A_std, alpha=0.25)
+→ B_curves 도 같은 형식으로 그려 주세요.
+→ 마지막 평가 시점의 평균 보상(A_mean[-1] 등)도 print 로 출력해 보세요.
+"""
 
 
 # ===== TODO 2 =====
-# plt.xlabel / plt.ylabel / plt.legend / plt.title 을 달고,
-# plt.savefig("curves.png") 로 저장해 주세요.
+"""
+그래프에 축 이름 / 범례 / 제목을 달고 curves.png 로 저장해 주세요.
+ex)
+plt.xlabel("Timesteps")
+→ plt.ylabel, plt.legend, plt.title 도 같은 형식으로 달아 주세요.
+plt.savefig("curves.png")
+"""
