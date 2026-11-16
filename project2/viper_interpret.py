@@ -1,3 +1,4 @@
+from sklearn.tree import export_text
 """
 viper_interpret.py — VIPER 결정트리가 '무엇을 보고 판단하는지' 분석
 
@@ -52,7 +53,13 @@ i = order[0]
 print(feat_names[i], f"{imp[i]:.3f}")  # 1등 피처 하나 출력
 → for 문으로 order 를 돌면서, imp[i] > 0 인 것만 같은 형식으로 출력해 주세요.
 """
+print("\n[1] 주요 피처 중요도 (0 초과)")
+imp = clf.feature_importances_
+order = np.argsort(imp)[::-1]
 
+for i in order:
+    if imp[i] > 0:
+        print(f"{feat_names[i]:<30} : {imp[i]:.4f}")
 
 # ===== TODO 2 =====
 """
@@ -67,3 +74,22 @@ print(feat_names[i], f"{imp[i]:.3f}")  # 1등 피처 하나 출력
    → "Ball" 이 들어간 피처들의 중요도 합(ball_sum)도 구해서 enemy_sum 과 비교해 보세요.
 3) 위 결과를 근거로 "지름길 징후: 적 위치에 의존" 또는 "공/자기 패들 기반" 을 출력해 주세요.
 """
+print("\n[2] 객체별 중요도 합산 및 지름길 여부 판정")
+enemy_features = [feat_names[i] for i in order if imp[i] > 0 and "Enemy" in feat_names[i]]
+enemy_sum = sum(imp[i] for i in order if "Enemy" in feat_names[i])
+ball_sum = sum(imp[i] for i in order if "Ball" in feat_names[i])
+player_sum = sum(imp[i] for i in order if "Player" in feat_names[i])
+
+print(f"- 사용된 Enemy 관련 피처: {enemy_features if enemy_features else '없음'}")
+print(f"- Enemy 피처 중요도 합 : {enemy_sum:.4f}")
+print(f"- Ball  피처 중요도 합 : {ball_sum:.4f}")
+print(f"- Player피처 중요도 합 : {player_sum:.4f}")
+
+if enemy_sum > ball_sum:
+    print("=> 판정: 지름길 징후: 적 위치에 의존")
+else:
+    print("=> 판정: 공/자기 패들 기반")
+
+# ===== 추가 분석: 실제 결정트리 상위 분기 구조 출력 =====
+print("\n[3] 결정트리 상위 분기 규칙 (Depth 3까지)")
+print(export_text(clf, feature_names=feat_names, max_depth=3))
