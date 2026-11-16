@@ -21,8 +21,11 @@ FOCUS = "default_focus_Pong-v5.yaml"
   PYTHONPATH=. python viper_extract.py -i resources/checkpoints/Pong_seed0_reward-env_oc -r viper -e 2
   - B 는 트리를 뽑을 때와 이 스크립트를 실행할 때 모두 앞에 SCOBI_EXCLUDE_OBJECTS=Enemy 를 붙여 주세요.
 """
-tree_path = glob.glob(
-    f"resources/viper_extracts/extract_output/{CKPT}*-extraction/*_best.viper")[0]
+# "{CKPT}-" 로 이름 끝을 구분 (A 이름이 B 폴더 이름의 앞부분이라 "{CKPT}*" 로 쓰면 B 트리까지 잡힘)
+paths = glob.glob(
+    f"resources/viper_extracts/extract_output/{CKPT}-*extraction/*_best.viper")
+assert len(paths) == 1, f"트리 후보가 {len(paths)}개입니다(1개여야 함): {paths}"
+tree_path = paths[0]
 clf = load(tree_path)
 print("트리:", tree_path.split("/")[-1], "| 노드수:", clf.tree_.node_count)
 
@@ -30,6 +33,8 @@ env = Environment("ALE/Pong-v5", focus_dir=f"resources/checkpoints/{CKPT}",
                   focus_file=FOCUS, silent=True, refresh_yaml=False)
 env.reset(seed=0)
 feat_names = env.get_vector_entry_descriptions()
+assert clf.n_features_in_ == len(feat_names), \
+    "트리와 피처 이름 개수가 다릅니다 — 다른 에이전트의 트리이거나, B인데 SCOBI_EXCLUDE_OBJECTS=Enemy 를 빼먹었는지 확인하세요"
 
 # ===== TODO 1 =====
 """

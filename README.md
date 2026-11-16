@@ -34,7 +34,7 @@ Pong에서 내장 상대(적) AI는 공을 따라다니기 때문에, **적 패�
 | Language | Python 3.8 |
 | 강화학습 | Stable-Baselines3 2.0.0 (PPO, MLP 2×64) |
 | 객체 탐지 | OCAtari |
-| 환경 | ale-py 0.10.1, gymnasium 0.28.1 (ALE/Pong-v5) |
+| 환경 | gymnasium 0.28.1, ale-py 0.8.1 (ALE/Pong-v5) ※ 모델 학습 PC는 ale-py 0.10.1 |
 | 트리 증류 | VIPER (scikit-learn DecisionTree) |
 | 분석·시각화 | SciPy(상관), matplotlib(차트) |
 | 실행 환경 | **CPU 전용** (WSL2 / Ubuntu) |
@@ -75,7 +75,7 @@ cd SCoBots
 # 2. 환경 구성 (WSL2 + conda, Python 3.8)
 conda create -n scobots python=3.8 -y
 conda activate scobots
-pip install -r requirements.txt
+pip install -r requirements.txt "stable-baselines3[extras]==2.0.0"
 
 # 3. 분석 실행 (저장소 루트에서, import 때문에 PYTHONPATH 지정)
 PYTHONPATH=. python project2/correlation.py       # 상관계수
@@ -84,6 +84,7 @@ PYTHONPATH=. python project2/viper_interpret.py    # 결정트리 해석
 ```
 
 - 요구 환경: Windows + WSL2(Ubuntu), Python 3.8
+- stable-baselines3는 autorom 버전 문제로 `requirements.txt`에 없어서 위처럼 함께 설치합니다 (원본 README 안내). 설치 후 `gymnasium 0.28.1 · ale-py 0.8.1 · stable-baselines3 2.0.0 · ocatari 2.0.0` 이면 정상입니다.
 - 학습된 모델(체크포인트)은 `resources/checkpoints/` 아래에 있어야 합니다.
 
 ---
