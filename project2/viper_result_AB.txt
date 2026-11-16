@@ -1,0 +1,176 @@
+============================================================
+분석 대상: 에이전트 B (적 제거: pruned-external)
+============================================================
+트리: Tree-15.0_best.viper | 노드수: 255
+
+[1] 주요 피처 중요도 (0 초과)
+D(Player1, Ball1).y            : 0.3522
+DV(Ball1).y                    : 0.2046
+Ball1.x                        : 0.1195
+DV(Player1).y                  : 0.0847
+Ball1.x[t-1]                   : 0.0632
+DV(Ball1).x                    : 0.0486
+D(Player1, Ball1).x            : 0.0370
+Player1.y                      : 0.0290
+Ball1.x                        : 0.0222
+Player1.y                      : 0.0148
+Ball1.y                        : 0.0083
+Ball1.y                        : 0.0074
+Ball1.y[t-1]                   : 0.0051
+Player1.y[t-1]                 : 0.0035
+
+[2] 객체별 중요도 합산 및 지름길 여부 판정
+- 사용된 Enemy 관련 피처: 없음
+- Enemy 피처 중요도 합 : 0.0000
+- Ball  피처 중요도 합 : 0.8681
+- Player피처 중요도 합 : 0.5211
+=> 판정: 공/자기 패들 기반
+
+[3] 결정트리 상위 분기 규칙 (Depth 3까지)
+|--- D(Player1, Ball1).y <= 0.22
+|   |--- D(Player1, Ball1).x <= 0.71
+|   |   |--- Ball1.x <= -0.03
+|   |   |   |--- Player1.y[t-1] <= -0.71
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- Player1.y[t-1] >  -0.71
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |--- Ball1.x >  -0.03
+|   |   |   |--- DV(Ball1).y <= -0.19
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- DV(Ball1).y >  -0.19
+|   |   |   |   |--- truncated branch of depth 4
+|   |--- D(Player1, Ball1).x >  0.71
+|   |   |--- DV(Ball1).y <= -0.59
+|   |   |   |--- Ball1.x[t-1] <= 1.37
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- Ball1.x[t-1] >  1.37
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |--- DV(Ball1).y >  -0.59
+|   |   |   |--- DV(Ball1).x <= 0.15
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- DV(Ball1).x >  0.15
+|   |   |   |   |--- truncated branch of depth 4
+|--- D(Player1, Ball1).y >  0.22
+|   |--- DV(Ball1).y <= 0.47
+|   |   |--- Ball1.x <= 1.28
+|   |   |   |--- D(Player1, Ball1).y <= 0.55
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- D(Player1, Ball1).y >  0.55
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |--- Ball1.x >  1.28
+|   |   |   |--- D(Player1, Ball1).y <= 0.37
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- D(Player1, Ball1).y >  0.37
+|   |   |   |   |--- truncated branch of depth 4
+|   |--- DV(Ball1).y >  0.47
+|   |   |--- Ball1.x[t-1] <= 1.35
+|   |   |   |--- Player1.y <= 0.25
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- Player1.y >  0.25
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |--- Ball1.x[t-1] >  1.35
+|   |   |   |--- DV(Player1).y <= 0.78
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- DV(Player1).y >  0.78
+|   |   |   |   |--- truncated branch of depth 4
+
+============================================================
+분석 대상: 에이전트 A (적 포함: default)
+============================================================
+트리: Tree-13.125_best.viper | 노드수: 239
+Set env var 'SCOBI_OBJ_EXTRACTOR' as 'OC_Atari'. Other option is 'Noisy_OC_Atari' which can be set manually
+
+[1] 주요 피처 중요도 (0 초과)
+LT(Player1, Ball1).y           : 0.4880
+Ball1.y[t-1]                   : 0.0957
+C(Player1, Enemy1).y           : 0.0562
+LT(Enemy1, Ball1).y            : 0.0551
+ED(Enemy1, Ball1)              : 0.0402
+LT(Enemy1, Player1).y          : 0.0375
+DV(Ball1).x                    : 0.0374
+D(Ball1, Player1).y            : 0.0297
+LT(Ball1, Enemy1).y            : 0.0234
+DV(Ball1).y                    : 0.0217
+Ball1.y                        : 0.0196
+D(Player1, Ball1).y            : 0.0168
+Ball1.x[t-1]                   : 0.0143
+C(Ball1, Player1).y            : 0.0135
+Ball1.y                        : 0.0087
+D(Player1, Enemy1).y           : 0.0085
+LT(Ball1, Player1).y           : 0.0064
+D(Enemy1, Player1).y           : 0.0060
+C(Enemy1, Ball1).x             : 0.0054
+ED(Enemy1, Player1)            : 0.0052
+LT(Player1, Enemy1).y          : 0.0028
+DV(Player1).y                  : 0.0020
+V(Ball1).x                     : 0.0018
+D(Ball1, Enemy1).x             : 0.0016
+ED(Ball1, Enemy1)              : 0.0008
+ED(Player1, Ball1)             : 0.0006
+Player1.y                      : 0.0003
+C(Enemy1, Player1).y           : 0.0003
+D(Ball1, Enemy1).y             : 0.0003
+D(Ball1, Player1).x            : 0.0000
+Player1.y[t-1]                 : 0.0000
+DV(Enemy1).y                   : 0.0000
+C(Enemy1, Ball1).y             : 0.0000
+D(Player1, Ball1).x            : 0.0000
+Player1.y                      : 0.0000
+V(Player1).x                   : 0.0000
+C(Ball1, Player1).x            : 0.0000
+
+[2] 객체별 중요도 합산 및 지름길 여부 판정
+- 사용된 Enemy 관련 피처: ['C(Player1, Enemy1).y', 'LT(Enemy1, Ball1).y', 'ED(Enemy1, Ball1)', 'LT(Enemy1, Player1).y', 'LT(Ball1, Enemy1).y', 'D(Player1, Enemy1).y', 'D(Enemy1, Player1).y', 'C(Enemy1, Ball1).x', 'ED(Enemy1, Player1)', 'LT(Player1, Enemy1).y', 'D(Ball1, Enemy1).x', 'ED(Ball1, Enemy1)', 'C(Enemy1, Player1).y', 'D(Ball1, Enemy1).y', 'DV(Enemy1).y', 'C(Enemy1, Ball1).y']
+- Enemy 피처 중요도 합 : 0.2434
+- Ball  피처 중요도 합 : 0.8812
+- Player피처 중요도 합 : 0.6738
+=> 판정: 공/자기 패들 기반
+
+[3] 결정트리 상위 분기 규칙 (Depth 3까지)
+|--- LT(Player1, Ball1).y <= -0.12
+|   |--- Ball1.y[t-1] <= 1.24
+|   |   |--- DV(Ball1).y <= -1.57
+|   |   |   |--- ED(Ball1, Enemy1) <= -0.03
+|   |   |   |   |--- class: 0
+|   |   |   |--- ED(Ball1, Enemy1) >  -0.03
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |--- DV(Ball1).y >  -1.57
+|   |   |   |--- DV(Ball1).x <= -0.90
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- DV(Ball1).x >  -0.90
+|   |   |   |   |--- truncated branch of depth 4
+|   |--- Ball1.y[t-1] >  1.24
+|   |   |--- Ball1.y <= 1.58
+|   |   |   |--- D(Ball1, Enemy1).x <= 0.27
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- D(Ball1, Enemy1).x >  0.27
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |--- Ball1.y >  1.58
+|   |   |   |--- DV(Ball1).y <= 0.32
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- DV(Ball1).y >  0.32
+|   |   |   |   |--- truncated branch of depth 4
+|--- LT(Player1, Ball1).y >  -0.12
+|   |--- LT(Player1, Ball1).y <= -0.00
+|   |   |--- C(Player1, Enemy1).y <= 0.96
+|   |   |   |--- D(Ball1, Player1).y <= -0.42
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- D(Ball1, Player1).y >  -0.42
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |--- C(Player1, Enemy1).y >  0.96
+|   |   |   |--- LT(Enemy1, Ball1).y <= -0.13
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- LT(Enemy1, Ball1).y >  -0.13
+|   |   |   |   |--- truncated branch of depth 4
+|   |--- LT(Player1, Ball1).y >  -0.00
+|   |   |--- Ball1.y <= 0.69
+|   |   |   |--- ED(Enemy1, Ball1) <= 1.28
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- ED(Enemy1, Ball1) >  1.28
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |--- Ball1.y >  0.69
+|   |   |   |--- LT(Enemy1, Player1).y <= -0.00
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- LT(Enemy1, Player1).y >  -0.00
+|   |   |   |   |--- truncated branch of depth 4
+
