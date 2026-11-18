@@ -11,7 +11,10 @@ Pong을 랜덤 에이전트로 10만 프레임 돌리면서, 10프레임마다 �
 from scobi import Environment
 import numpy as np
 from scipy.stats import pearsonr, spearmanr, kendalltau
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import os
 
 env = Environment("ALE/Pong-v5",
     focus_dir="resources/checkpoints/Pong_seed0_reward-env_oc",
@@ -38,36 +41,59 @@ ball_x, enemy_x, player_x = np.array(ball_x), np.array(enemy_x), np.array(player
 print("수집 샘플 수:", len(enemy_y))
 
 # ===== TODO 1 =====
-"""
-위에서 모은 값들이 numpy 배열로 저장되어 있습니다.
-  enemy_y, ball_y   : 적 패들 / 공의 세로 위치 (y)
-  ball_x            : 공의 가로 위치 (x)
-  enemy_x, player_x : 적 패들 / 내 패들의 가로 위치 (x)
+# 1) 제외 전 전체 샘플의 상관 (참고용)
+r_all = pearsonr(ball_y, enemy_y)[0]
+print(f"[제외 전] Pearson : {r_all:.3f}")
 
-1) 산점도를 한 번 그려 보고, 직선에서 벗어난 점들이 어떤 상황에서 생기는지 살펴보세요.
-2) 공이 '경기 중'이 아닌 샘플을 빼는 조건(True/False 배열)을 만들어 주세요.
-   ex)
-   keep = (ball_y != 0)
-   print("제외한 샘플 수:", (~keep).sum())
-   → 공이 두 패들 사이(enemy_x ~ player_x)에 있는지도 같은 방식으로 조건에 추가해 보세요.
-3) 남은 샘플(keep 이 True 인 것)로 세 상관계수를 구해 논문 값과 비교해 주세요.
-   ex)
-   r, _ = pearsonr(ball_y[keep], enemy_y[keep])
-   print(f"Pearson : {r:.3f}  (논문 0.996)")
-   → spearmanr(논문 0.995), kendalltau(논문 0.964) 도 같은 형식으로 구해 주세요.
-4) 무엇을, 왜 뺐는지 print 로 함께 남겨 주세요.
-"""
+# 2) 공이 '경기 중'이 아닌 샘플 제외
+#  - 공이 화면에 없음 : 득점 직후 등 공이 사라지면 OCAtari가 (0, 0)을 돌려줌
+#  - 적 패들 미검출   : 적 x 가 0 으로 들어오는 프레임
+#  - 공이 두 패들 사이가 아님 : 득점 직후 공이 패들 뒤(골라인 쪽)로 빠져 있는 구간.
+#    랜덤 에이전트는 실점이 잦아 공이 내 패들 뒤(x > player_x)에 머무는 샘플이 많고,
+#    이때 적 AI는 공을 따라가지 않으므로 산점도에서 직선을 벗어난 점이 됨
+no_ball = (ball_y == 0) & (ball_x == 0)
+no_enemy = (enemy_x == 0)
+between = (ball_x > enemy_x) & (ball_x < player_x)
+keep = ~no_ball & ~no_enemy & between
+
+print("\n[제외한 샘플]")
+print(f"  공 미검출 (ball x,y = 0)          : {no_ball.sum()}")
+print(f"  적 패들 미검출 (enemy_x = 0)      : {(no_enemy & ~no_ball).sum()}")
+print(f"  공이 두 패들 사이가 아님          : {(~between & ~no_ball & ~no_enemy).sum()}")
+print(f"  → 합계 {(~keep).sum()} 개 제외, {keep.sum()} 개 사용 (전체 {len(keep)})")
+
+# 3) 남은 샘플로 세 상관계수 계산
+r_p, _ = pearsonr(ball_y[keep], enemy_y[keep])
+r_s, _ = spearmanr(ball_y[keep], enemy_y[keep])
+r_k, _ = kendalltau(ball_y[keep], enemy_y[keep])
+print("\n[제외 후 상관계수]")
+print(f"  Pearson : {r_p:.3f}  (논문 0.996)")
+print(f"  Spearman: {r_s:.3f}  (논문 0.995)")
+print(f"  Kendall : {r_k:.3f}  (논문 0.964)")
+
+# 남은 이탈점: 적 AI는 공을 약간 늦게 따라가므로, 공이 위/아래 벽에 튕겨 방향이
+# 갑자기 바뀌는 화면 가장자리에서 공-적 y 차이가 커짐 (경기 중 상황이므로 제외하지 않음)
+gap = np.abs(enemy_y - ball_y)[keep]
+by = ball_y[keep]
+print("\n참고) 남은 샘플의 공 높이별 평균 |적 y - 공 y|")
+for lo, hi, name in ((0, 60, "위쪽 벽 근처"), (60, 175, "가운데"), (175, 256, "아래쪽 벽 근처")):
+    m = (by >= lo) & (by < hi)
+    print(f"  {name:8s} (공 y {lo}~{hi}): {gap[m].mean():.2f}  (n={m.sum()})")
 
 
 # ===== TODO 2 =====
-"""
-ball_y 를 x축, enemy_y 를 y축으로 산점도를 그려 correlation.png 로 저장해 주세요.
-ex)
-plt.figure(figsize=(6, 6))
-plt.scatter(ball_y, enemy_y, s=2, alpha=0.3)
-plt.xlabel("Ball y")
-plt.ylabel("Enemy y")
-plt.savefig("correlation.png")
-→ keep 을 만든 뒤에는 ball_y[keep], enemy_y[keep] 으로도 그려서
-  제외 전/후를 비교해 보세요. (plt.title 로 상관계수도 같이 표시해 주세요)
-"""
+out_dir = os.path.dirname(os.path.abspath(__file__))
+fig, axes = plt.subplots(1, 2, figsize=(12, 6), sharex=True, sharey=True)
+axes[0].scatter(ball_y, enemy_y, s=2, alpha=0.3)
+axes[0].set_title(f"All samples (n={len(ball_y)})\nPearson={r_all:.3f}")
+axes[1].scatter(ball_y[keep], enemy_y[keep], s=2, alpha=0.3, color="tab:orange")
+axes[1].set_title(f"Ball in play (n={keep.sum()})\n"
+                  f"Pearson={r_p:.3f}  Spearman={r_s:.3f}  Kendall={r_k:.3f}")
+for ax in axes:
+    ax.set_xlabel("Ball y")
+    ax.set_ylabel("Enemy y")
+    ax.grid(alpha=0.3)
+fig.suptitle("Pong: Enemy paddle y vs Ball y (random agent, 100k frames)")
+fig.tight_layout()
+fig.savefig(os.path.join(out_dir, "correlation.png"), dpi=150)
+print("저장:", os.path.relpath(os.path.join(out_dir, "correlation.png")))
