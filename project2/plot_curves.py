@@ -78,7 +78,7 @@ C_CKPTS, D_CKPTS 에 확장 단계에서 학습한 에이전트의 체크포인�
   D : C + 멈추는 적까지 섞어서 학습한 에이전트
   → A·B 와 같은 형태(평가 횟수, 시드 3개)라 load_curve 를 그대로 쓸 수 있습니다.
 
-TODO 1 과 같은 방식으로 C·D 의 평균 곡선과 밴드를 같은 그림에 추가해 주세요.
+TODO 1·2 에서 그린 A·B 그림에 이어서 C·D 를 추가해, 네 에이전트를 한 그림에 그려 주세요.
 ex)
 C_curves = np.stack([load_curve(c)[1] for c in C_CKPTS])
 → D_curves 도 같은 형식으로 만들어서 그려 주세요.
