@@ -8,6 +8,9 @@ A(적 포함)와 B(적 제거)에 대해 그립니다. 세 시드(0/16/32)를 �
 점이 보입니다.
 """
 import numpy as np
+import os
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 A_CKPTS = [f"Pong_seed{s}_reward-env_oc" for s in (0, 16, 32)]
@@ -27,29 +30,36 @@ B_curves = np.stack([load_curve(c)[1] for c in B_CKPTS])
 plt.figure(figsize=(8, 5))
 
 # ===== TODO 1 =====
-"""
-위에서 불러온 값들이 저장되어 있습니다.
-  t        : 평가한 타임스텝 (x축)
-  A_curves : A(적 포함) 시드 3개의 평가 보상, 모양 (3, 평가횟수)
-  B_curves : B(적 제거) 시드 3개의 평가 보상, 모양 (3, 평가횟수)
+A_mean, A_std = A_curves.mean(axis=0), A_curves.std(axis=0)
+B_mean, B_std = B_curves.mean(axis=0), B_curves.std(axis=0)
 
-시드 축(axis=0)으로 평균과 표준편차를 구해서
-plt.plot 으로 평균 곡선을, plt.fill_between 으로 평균±표준편차 밴드를 그려 주세요.
-ex)
-A_mean = A_curves.mean(axis=0)
-A_std = A_curves.std(axis=0)
-plt.plot(t, A_mean, label="A (with enemy)")
-plt.fill_between(t, A_mean - A_std, A_mean + A_std, alpha=0.25)
-→ B_curves 도 같은 형식으로 그려 주세요.
-→ 마지막 평가 시점의 평균 보상(A_mean[-1] 등)도 print 로 출력해 보세요.
-"""
+plt.plot(t, A_mean, label="A (with enemy)", color="tab:blue")
+plt.fill_between(t, A_mean - A_std, A_mean + A_std, alpha=0.25, color="tab:blue")
+plt.plot(t, B_mean, label="B (enemy removed)", color="tab:orange")
+plt.fill_between(t, B_mean - B_std, B_mean + B_std, alpha=0.25, color="tab:orange")
+
+print(f"평가 횟수: {len(t)}회 (마지막 {t[-1]:,} 스텝)")
+print(f"[마지막 평가] A: {A_mean[-1]:.2f} ± {A_std[-1]:.2f}   "
+      f"시드별 {np.round(A_curves[:, -1], 2).tolist()}")
+print(f"[마지막 평가] B: {B_mean[-1]:.2f} ± {B_std[-1]:.2f}   "
+      f"시드별 {np.round(B_curves[:, -1], 2).tolist()}")
+# 마지막 한 번의 평가는 에피소드 8개라 흔들림이 있어서, 마지막 5회 평균도 함께 출력
+print(f"[마지막 5회 평균] A: {A_mean[-5:].mean():.2f}   B: {B_mean[-5:].mean():.2f}")
+# 처음으로 평균 보상 15점을 넘긴 시점 (학습 속도 비교용)
+for name, m in (("A", A_mean), ("B", B_mean)):
+    hit = np.where(m >= 15)[0]
+    print(f"{name} 평균 보상 15점 첫 도달: "
+          + (f"{t[hit[0]]:,} 스텝" if len(hit) else "도달하지 못함"))
 
 
 # ===== TODO 2 =====
-"""
-그래프에 축 이름 / 범례 / 제목을 달고 curves.png 로 저장해 주세요.
-ex)
+plt.axhline(0, color="gray", lw=0.8, ls="--")
 plt.xlabel("Timesteps")
-→ plt.ylabel, plt.legend, plt.title 도 같은 형식으로 달아 주세요.
-plt.savefig("curves.png")
-"""
+plt.ylabel("Mean evaluation reward (8 episodes)")
+plt.title("Pong learning curves: A vs B (mean ± std over seeds 0/16/32)")
+plt.legend(loc="lower right")
+plt.grid(alpha=0.3)
+plt.tight_layout()
+out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "curves.png")
+plt.savefig(out, dpi=150)
+print("저장:", os.path.relpath(out))
