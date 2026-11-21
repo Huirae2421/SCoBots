@@ -6,6 +6,8 @@ viper_extract.py 로 추출된 결정트리(.viper, sklearn DecisionTreeClassifi
 관측 벡터의 각 입력이 어떤 개념인지(예: Enemy1.y, Ball1.y) 이름표를 가져옵니다.
 트리가 적(Enemy) 위치로 분기하면 지름길의 '트리 수준 증거'가 됩니다.
 (논문 Fig.4: A는 적·자기 패들의 수직위치로 판단, 공은 대체로 무시)
+
+[확장] 확장 단계에서 학습한 C·D 의 트리도 같은 방식으로 분석합니다. (TODO 3)
 """
 import argparse
 import glob
@@ -29,6 +31,32 @@ AGENTS = {
         "focus": "pruned_pong.yaml",
     },
 }
+
+# ================= 확장 단계 =================
+# C·D — B처럼 적을 뺀 입력 (SCOBI_EXCLUDE_OBJECTS=Enemy 필요)
+AGENTS["C0"] = {"label": "C seed0", "ckpt": "Pong_seed0_reward-env_oc_pruned-external_C-mix", "focus": "pruned_pong.yaml"}
+AGENTS["C16"] = {"label": "C seed16", "ckpt": "Pong_seed16_reward-env_oc_pruned-external_C-mix", "focus": "pruned_pong.yaml"}
+AGENTS["D16"] = {"label": "D seed16", "ckpt": "Pong_seed16_reward-env_oc_pruned-external_D-freeze", "focus": "pruned_pong.yaml"}
+AGENTS["D32"] = {"label": "D seed32", "ckpt": "Pong_seed32_reward-env_oc_pruned-external_D-freeze", "focus": "pruned_pong.yaml"}
+
+# ===== TODO 3 (확장) =====
+"""
+AGENTS 에 확장 단계에서 학습한 C·D 4개가 추가되어 있습니다.
+  C0, D16  : LazyEnemy 에서도 점수가 유지된 에이전트
+  C16, D32 : LazyEnemy 에서 점수가 크게 떨어진 에이전트
+  → 넷 다 B 처럼 적을 뺀 입력이라 SCOBI_EXCLUDE_OBJECTS=Enemy 로 실행해야 합니다.
+    (--agent C0 처럼 실행하면 자동으로 설정됩니다)
+
+1) viper_extract.py 로 4개의 트리를 추출해 주세요.
+   ex)
+   SCOBI_EXCLUDE_OBJECTS=Enemy python viper_extract.py -i resources/checkpoints/Pong_seed16_reward-env_oc_pruned-external_D-freeze -r viper
+   → 나머지 3개도 같은 형식으로 추출해 주세요.
+2) analyze_agent 로 4개를 분석하고, 점수가 유지된 쪽과 떨어진 쪽의 트리가 어떻게 다른지 비교해 주세요.
+   ex)
+   python project2/viper_interpret.py --agent D16
+   → 상위 피처나 분기 규칙에서 두 묶음의 차이를 print 로 정리해 주세요.
+3) 추출한 *_best.viper 파일도 함께 커밋해 주세요.
+"""
 
 
 def analyze_agent(agent_key: str):
@@ -95,7 +123,7 @@ def analyze_agent(agent_key: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--agent", choices=["A", "B", "both"], default=None)
+    parser.add_argument("--agent", choices=list(AGENTS) + ["both"], default=None)
     args = parser.parse_args()
 
     # SCOBI_EXCLUDE_OBJECTS=Enemy 환경변수를 직접 지정해 실행한 경우 B만 단독 분석
@@ -109,12 +137,12 @@ if __name__ == "__main__":
         env_b = os.environ.copy()
         env_b["SCOBI_EXCLUDE_OBJECTS"] = "Enemy"
         subprocess.run([sys.executable, __file__, "--agent", "B"], env=env_b, check=True)
-    elif target == "B":
+    elif target != "A":  # B 와 확장 C·D 는 적을 뺀 입력
         if "Enemy" not in os.environ.get("SCOBI_EXCLUDE_OBJECTS", ""):
             env_b = os.environ.copy()
             env_b["SCOBI_EXCLUDE_OBJECTS"] = "Enemy"
-            subprocess.run([sys.executable, __file__, "--agent", "B"], env=env_b, check=True)
+            subprocess.run([sys.executable, __file__, "--agent", target], env=env_b, check=True)
         else:
-            analyze_agent("B")
+            analyze_agent(target)
     else:
         analyze_agent("A")

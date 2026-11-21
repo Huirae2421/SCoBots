@@ -109,7 +109,7 @@ def main():
     
     if len(checkpoint_options) == 4:
         print("unpruned")
-    elif len(checkpoint_options) == 5:
+    elif len(checkpoint_options) >= 5:  # C·D 처럼 이름 뒤에 _C-mix 등이 붙어도 pruned 로 인식
         print("pruned")
         prune = True
         if checkpoint_options[-1] == "pr-ext-abl":
