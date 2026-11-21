@@ -6,6 +6,8 @@ plot_curves.py — A와 B의 학습곡선 비교
 A(적 포함)와 B(적 제거)에 대해 그립니다. 세 시드(0/16/32)를 묶어 평균과
 표준편차 밴드로 나타내면, 두 에이전트가 표준 Pong에서 비슷하게 잘 학습된다는
 점이 보입니다.
+
+[확장] 확장 단계에서 새로 학습한 C·D 의 학습곡선을 추가로 그립니다. (TODO 3)
 """
 import numpy as np
 import os
@@ -63,3 +65,22 @@ plt.tight_layout()
 out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "curves.png")
 plt.savefig(out, dpi=150)
 print("저장:", os.path.relpath(out))
+
+
+# ================= 확장 단계 =================
+C_CKPTS = [f"Pong_seed{s}_reward-env_oc_pruned-external_C-mix" for s in (0, 16, 32)]
+D_CKPTS = [f"Pong_seed{s}_reward-env_oc_pruned-external_D-freeze" for s in (0, 16, 32)]
+
+# ===== TODO 3 (확장) =====
+"""
+C_CKPTS, D_CKPTS 에 확장 단계에서 학습한 에이전트의 체크포인트 이름이 저장되어 있습니다.
+  C : 학습 상대를 섞어서 학습한 에이전트
+  D : C + 멈추는 적까지 섞어서 학습한 에이전트
+  → A·B 와 같은 형태(평가 횟수, 시드 3개)라 load_curve 를 그대로 쓸 수 있습니다.
+
+TODO 1 과 같은 방식으로 C·D 의 평균 곡선과 밴드를 같은 그림에 추가해 주세요.
+ex)
+C_curves = np.stack([load_curve(c)[1] for c in C_CKPTS])
+→ D_curves 도 같은 형식으로 만들어서 그려 주세요.
+→ 그림은 curves_cd.png 로 따로 저장해 주세요.
+"""

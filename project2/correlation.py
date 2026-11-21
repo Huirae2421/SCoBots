@@ -7,6 +7,8 @@ Pong을 랜덤 에이전트로 10만 프레임 돌리면서, 10프레임마다 �
 거의 함께 움직이며, 이 상관이 높다는 점이 'A 에이전트가 공 대신 적을 봐도 되는'
 지름길(shortcut)의 근본 원인입니다.
 (논문 A.7 기준: Pearson 99.6% / Spearman 99.5% / Kendall 96.4%)
+
+[확장] 같은 측정을 LazyEnemy 환경에서도 해서 base 와 비교합니다. (TODO 3)
 """
 from scobi import Environment
 import numpy as np
@@ -97,3 +99,32 @@ fig.suptitle("Pong: Enemy paddle y vs Ball y (random agent, 100k frames)")
 fig.tight_layout()
 fig.savefig(os.path.join(out_dir, "correlation.png"), dpi=150)
 print("저장:", os.path.relpath(os.path.join(out_dir, "correlation.png")))
+
+
+# ================= 확장 단계 =================
+def make_lazy_env():
+    # scobi 가 게임을 만들 때 HackAtari(lazy_enemy) 를 쓰도록 바꿔 끼움
+    import scobi.environments.ocgym as ocgym
+    from hackatari.core import HackAtari
+    ocgym.make = lambda name, *a, notify=False, **kw: HackAtari(name, modifs=["lazy_enemy"], mode="ram", **kw)
+    env = Environment("ALE/Pong-v5",
+        focus_dir="resources/checkpoints/Pong_seed0_reward-env_oc",
+        focus_file="default_focus_Pong-v5.yaml", silent=True, refresh_yaml=False)
+    env.reset(seed=0)
+    env.action_space.seed(0)
+    return env
+
+
+# ===== TODO 3 (확장: LazyEnemy) =====
+"""
+make_lazy_env() 는 LazyEnemy 환경을 만들어 주는 함수입니다.
+  LazyEnemy : 공이 내 쪽으로 올 때 적 패들이 멈추는 변형 (HackAtari lazy_enemy)
+  → 사용법은 위의 env 와 같습니다. (env.step, env.oc_env.objects 등)
+
+1) 위의 수집 루프를 LazyEnemy 환경에서도 돌려서 enemy_y, ball_y 등을 모아 주세요.
+   ex)
+   env_lazy = make_lazy_env()
+   → 위 for 문을 함수로 묶어 두 환경에서 같이 쓰면 편합니다.
+2) TODO 1 과 같은 keep 조건으로 상관계수를 구해, base 결과와 나란히 출력해 주세요.
+3) 산점도를 correlation_lazy.png 로 저장해 주세요.
+"""
