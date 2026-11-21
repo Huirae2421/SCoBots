@@ -22,7 +22,7 @@ class LogProbQ:
         s = torch.Tensor(s).to(cuda)
         s_repeat = s.repeat(self.env.action_space.n,1)
         with torch.no_grad():
-            _, s_a_log_probs, _ = self.pol.policy.evaluate_actions(s_repeat, torch.arange(self.env.action_space.n).reshape(-1, 1).to(cuda))
+            _, s_a_log_probs, _ = self.pol.policy.evaluate_actions(s_repeat.to(cuda), torch.arange(self.env.action_space.n).reshape(-1, 1).to(cuda))
         return s_a_log_probs
 
     def get_disagreement_cost(self, s):
