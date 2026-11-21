@@ -55,6 +55,7 @@ AGENTS 에 확장 단계에서 학습한 C·D 4개가 추가되어 있습니다.
    ex)
    python project2/viper_interpret.py --agent D16
    → 상위 피처나 분기 규칙에서 두 묶음의 차이를 print 로 정리해 주세요.
+   → 비교에 필요한 값을 analyze_agent 가 return 하도록 바꿔도 됩니다.
 3) 추출한 *_best.viper 파일도 함께 커밋해 주세요.
 """
 
