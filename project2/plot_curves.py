@@ -84,3 +84,51 @@ C_curves = np.stack([load_curve(c)[1] for c in C_CKPTS])
 → D_curves 도 같은 형식으로 만들어서 그려 주세요.
 → 그림은 curves_cd.png 로 따로 저장해 주세요.
 """
+
+C_curves = np.stack([load_curve(c)[1] for c in C_CKPTS])
+D_curves = np.stack([load_curve(c)[1] for c in D_CKPTS])
+assert all(np.array_equal(load_curve(c)[0], t) for c in C_CKPTS + D_CKPTS), "평가 시점이 A·B 와 다름"
+
+agents = [  # (이름, 곡선, 색)
+    ("A (with enemy)", A_curves, "tab:blue"),
+    ("B (enemy removed)", B_curves, "tab:orange"),
+    ("C (B + mixed opponents)", C_curves, "tab:green"),
+    ("D (C + freezing enemy)", D_curves, "tab:red"),
+]
+
+# 왼쪽: 전체 구간 / 오른쪽: 10M 이후 확대 (초반 음수 구간 때문에 후반 차이가 눌려 보이지 않도록)
+fig, (ax_all, ax_zoom) = plt.subplots(1, 2, figsize=(14, 5.5),
+                                      gridspec_kw={"width_ratios": [1.3, 1]})
+late = t >= 10_000_000
+for name, curves, color in agents:
+    m, sd = curves.mean(axis=0), curves.std(axis=0)
+    for ax, sel in ((ax_all, slice(None)), (ax_zoom, late)):
+        ax.plot(t[sel], m[sel], label=name, color=color, lw=1.4)
+        ax.fill_between(t[sel], (m - sd)[sel], (m + sd)[sel], alpha=0.12, color=color)
+
+ax_all.axhline(0, color="gray", lw=0.8, ls="--")
+ax_all.set_title("All timesteps")
+ax_zoom.set_title("Zoom: 10M – 20M")
+for ax in (ax_all, ax_zoom):
+    ax.set_xlabel("Timesteps")
+    ax.set_ylabel("Mean evaluation reward on base Pong (8 episodes)")
+    ax.grid(alpha=0.3)
+ax_all.legend(loc="lower right")
+fig.suptitle("Pong learning curves: A / B / C / D (mean ± std over seeds 0/16/32, evaluated on base)")
+fig.tight_layout()
+
+# 출력: 마지막 평가, 마지막 5회 평균, 15점 첫 도달, 시드별 후반(15M~20M) 평균
+print("\n" + "=" * 60)
+print("[확장] A·B·C·D 학습곡선 (학습 중 평가는 모두 base 상대)")
+tail = t >= 15_000_000
+for name, curves, _ in agents:
+    m, sd = curves.mean(axis=0), curves.std(axis=0)
+    hit = np.where(m >= 15)[0]
+    first = f"{t[hit[0]]:,}" if len(hit) else "도달 못함"
+    per_seed = " / ".join(f"{v:.2f}" for v in curves[:, tail].mean(axis=1))
+    print(f"{name:24s} 마지막 {m[-1]:5.2f} ± {sd[-1]:4.2f} | 마지막 5회 평균 {m[-5:].mean():5.2f}"
+          f" | 15점 첫 도달 {first:>10s} | 15M~20M 시드별(0/16/32) {per_seed}")
+
+out_cd = os.path.join(os.path.dirname(os.path.abspath(__file__)), "curves_cd.png")
+fig.savefig(out_cd, dpi=150)
+print("저장:", os.path.relpath(out_cd))
